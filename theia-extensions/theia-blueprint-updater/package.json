@@ -39,7 +39,7 @@
     "src"
   ],
   "scripts": {
-    "prepare": "yarn clean && yarn build",
+    "prepare": "yarn build",
     "clean": "rimraf lib *.tsbuildinfo",
     "build": "tsc -b",
     "lint": "eslint --ext js,jsx,ts,tsx src",
