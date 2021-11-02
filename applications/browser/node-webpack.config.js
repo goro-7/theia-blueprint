@@ -81,6 +81,12 @@ module.exports = {
     },
     plugins: [
         new webpack.NormalModuleReplacementPlugin(/^bindings$/, path.resolve('replacements/bindings.js')),
+        new webpack.NormalModuleReplacementPlugin(/^vscode-ripgrep$/, path.resolve('replacements/vscode-ripgrep.js')),
+        new webpack.NormalModuleReplacementPlugin(/\/plugin-host-rpc$/, resource => {
+            if (resource.context.includes('plugin-ext')) {
+                resource.request = path.resolve('replacements/plugin-host-rpc.js')
+            }
+        }),
         // Webpack trips on the places where those modules are required.
         // Since we'll never reach the code paths where they actually are required at runtime,
         // it is safe to completely ignore them. Webpack will throw an error if they are required.

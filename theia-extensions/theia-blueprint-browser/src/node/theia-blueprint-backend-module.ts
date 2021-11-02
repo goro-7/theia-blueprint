@@ -19,20 +19,17 @@ import { ApplicationPackage, ExtensionPackage } from '@theia/core/shared/@theia/
 import { ContainerModule, injectable } from '@theia/core/shared/inversify';
 import { PluginDeployerParticipant, PluginDeployerStartContext } from '@theia/plugin-ext';
 import { RgPath } from '@theia/search-in-workspace/lib/node/ripgrep-search-in-workspace-server';
+import { rgPath } from './theia-blueprint-ripgrep';
 import { getAppResourcePath, installationPath } from './theia-blueprint-application';
 import express = require('express');
 import path = require('path');
-
-const RgName = process.platform === 'win32'
-    ? 'rg.exe'
-    : 'rg';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(PluginDeployerParticipant).to(BlueprintBuiltinPlugins).inSingletonScope();
     bind(BackendApplicationServer).to(BlueprintApplicationServer).inSingletonScope();
     rebind(ApplicationPackage).toConstantValue(new BlueprintApplicationPackage({ projectPath: installationPath }));
     rebind(BackendApplicationCliContribution).to(BlueprintBackendApplicationCliContribution).inSingletonScope();
-    rebind(RgPath).toConstantValue(getAppResourcePath(`bin/${RgName}`));
+    rebind(RgPath).toConstantValue(rgPath);
 });
 
 @injectable()
