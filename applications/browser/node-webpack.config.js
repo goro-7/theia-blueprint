@@ -83,7 +83,7 @@ module.exports = {
         new webpack.NormalModuleReplacementPlugin(/^bindings$/, path.resolve('replacements/bindings.js')),
         new webpack.NormalModuleReplacementPlugin(/^vscode-ripgrep$/, path.resolve('replacements/vscode-ripgrep.js')),
         new webpack.NormalModuleReplacementPlugin(/\/plugin-host-rpc$/, resource => {
-            if (resource.context.includes('plugin-ext')) {
+            if (/[/\\]plugin-ext[/\\]/.test(resource.context)) {
                 resource.request = path.resolve('replacements/plugin-host-rpc.js')
             }
         }),
@@ -91,7 +91,7 @@ module.exports = {
         // Since we'll never reach the code paths where they actually are required at runtime,
         // it is safe to completely ignore them. Webpack will throw an error if they are required.
         new webpack.IgnorePlugin({
-            checkResource: (resource) => ignoreResources.has(resource)
+            checkResource: resource => ignoreResources.has(resource)
         }),
         new CopyPlugin({
             patterns: [

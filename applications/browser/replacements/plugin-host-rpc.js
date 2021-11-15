@@ -22,14 +22,14 @@ const { loadManifest } = require('@theia/plugin-ext/lib/hosted/node/plugin-manif
 exports.PluginHostRPC = class extends OriginalPluginHostRPC {
     createPluginManager(envExt, terminalService, storageProxy, preferencesManager, webview, secretsExt, rpc) {
         const { extensionTestsPath } = process.env;
-        const self = this;
-        const pluginManager = new PluginManagerExtImpl({
-            loadPlugin(plugin) {
+        /** @type {import('@theia/plugin-ext/lib/plugin/plugin-manager').PluginHost} */
+        const pluginHost = {
+            loadPlugin: plugin => {
                 console.log('PLUGIN_HOST(' + process.pid + '): PluginManagerExtImpl/loadPlugin(' + plugin.pluginPath + ')');
                 // cleaning the cache for all files of that plug-in.
                 for (const [key, mod] of Object.entries(require.cache)) {
                     // attempting to reload a native module will throw an error, so skip them
-                    if (mod.id.endsWith('.node')) {
+                    if (typeof mod.id === 'string' && mod.id.endsWith('.node')) {
                         return;
                     }
                     // remove children that are part of the plug-in
@@ -38,7 +38,7 @@ exports.PluginHostRPC = class extends OriginalPluginHostRPC {
                         while (i--) {
                             const childMod = mod.children[i];
                             // ensure the child module is not null, is in the plug-in folder, and is not a native module (see above)
-                            if (childMod && childMod.id.startsWith(plugin.pluginFolder) && !childMod.id.endsWith('.node')) {
+                            if (childMod && typeof childMod.id === 'string' && childMod.id.startsWith(plugin.pluginFolder) && !childMod.id.endsWith('.node')) {
                                 // cleanup exports - note that some modules (e.g. ansi-styles) define their
                                 // exports in an immutable manner, so overwriting the exports throws an error
                                 delete childMod.exports;
@@ -62,7 +62,7 @@ exports.PluginHostRPC = class extends OriginalPluginHostRPC {
                     return dynamicRequire(plugin.pluginPath);
                 }
             },
-            async init(raw) {
+            init: async raw => {
                 console.log('PLUGIN_HOST(' + process.pid + '): PluginManagerExtImpl/init()');
                 const result = [];
                 const foreign = [];
@@ -96,7 +96,7 @@ exports.PluginHostRPC = class extends OriginalPluginHostRPC {
                                 lifecycle: pluginLifecycle,
                                 rawModel
                             };
-                            self.initContext(backendInitPath, plugin);
+                            this.initContext(backendInitPath, plugin);
                             result.push(plugin);
                         }
                     }
@@ -106,7 +106,7 @@ exports.PluginHostRPC = class extends OriginalPluginHostRPC {
                 }
                 return [result, foreign];
             },
-            initExtApi(extApi) {
+            initExtApi: extApi => {
                 for (const api of extApi) {
                     if (api.backendInitPath) {
                         try {
@@ -119,7 +119,9 @@ exports.PluginHostRPC = class extends OriginalPluginHostRPC {
                     }
                 }
             },
-            loadTests: extensionTestsPath ? async () => {
+        };
+        if (extensionTestsPath) {
+            pluginHost.loadTests = async () => {
                 /* eslint-disable @typescript-eslint/no-explicit-any */
                 // Require the test runner via node require from the provided path
                 let testRunner;
@@ -146,8 +148,17 @@ exports.PluginHostRPC = class extends OriginalPluginHostRPC {
                 throw new Error(requireError ?
                     requireError.toString() :
                     `Path ${extensionTestsPath} does not point to a valid extension test runner.`);
-            } : undefined
-        }, envExt, terminalService, storageProxy, secretsExt, preferencesManager, webview, rpc);
-        return pluginManager;
+            };
+        }
+        return new PluginManagerExtImpl(
+            pluginHost,
+            envExt,
+            terminalService,
+            storageProxy,
+            secretsExt,
+            preferencesManager,
+            webview,
+            rpc
+        );
     }
 }
