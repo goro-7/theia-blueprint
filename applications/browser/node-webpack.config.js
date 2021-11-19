@@ -3,8 +3,9 @@ const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
+// TODO: Fix dependency issue in production mode that generates bogus minified code...
 /** @type {import('webpack').Configuration['mode']} */
-const mode = 'production';
+const mode = 'development';
 
 /** @type {import('webpack').EntryObject} */
 const commonJsLibraries = {};
