@@ -110,7 +110,7 @@
     "download:plugins": "theia download:plugins",
     "lint": "theiaext lint",
     "package": "yarn clean:dist && yarn rebuild && electron-builder -c.mac.identity=null --publish never",
-    "prepare": "yarn download:plugins",
+    "prepare": "yarn download:plugins && yarn bundle",
     "rebuild": "theia rebuild:electron --cacheRoot ../..",
     "start": "yarn rebuild && electron scripts/theia-electron-main.js",
     "start:debug": "yarn start --log-level=debug",
