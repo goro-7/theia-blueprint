@@ -18,9 +18,11 @@ files:
   - lib
   - scripts
   # Exclude Electron's development files
-  - "!**/node_modules/electron"
+  - "!**/node_modules/electron${/*}"
   # Exclude TS sources and maps
-  - "!**/node_modules/*.@(ts|tsx|js.map|d.ts|d.ts.map)"
+  - "!**/node_modules/@theia/*/src${/*}"
+  - "!**/node_modules/**/*.{ts,tsx,js.map,d.ts,d.ts.map,eslintrc,eslintcache,tsbuildinfo}"
+  - "!**/node_modules/*/tsconfig.json"
 extraResources:
   - from: plugins
     to: app/plugins
