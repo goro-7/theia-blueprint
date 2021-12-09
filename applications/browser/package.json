@@ -99,7 +99,7 @@
   "devDependencies": {
     "@theia/cli": "1.20.0",
     "node-loader": "^1.0.3",
-    "pkg": "5.1.0"
+    "pkg": "5.5.1"
   },
   "theiaPluginsDir": "builtins",
   "theiaPlugins": {
