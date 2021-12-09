@@ -24,7 +24,7 @@ kind: Pod
 spec:
   containers:
   - name: theia-dev
-    image: eclipsetheia/theia-blueprint
+    image: jfaltermeier/theia-blueprint-build
     command:
     - cat
     tty: true
@@ -59,11 +59,14 @@ spec:
                     steps {
                         container('theia-dev') {
                             script {
-                                buildNext(false)
+                                buildNext('linux')
                             }
                         }
                     }
                     post {
+                        always {
+                            archiveArtifacts artifacts: "**/*.png"
+                        }
                         failure {
                             error("Linux installer creation failed, aborting...")
                         }
@@ -75,7 +78,8 @@ spec:
                     }
                     steps {
                         script {
-                            buildNext(false)
+                            // buildNext('mac')
+                            sh "echo skipped"
                         }
                     }
                     post {
@@ -90,7 +94,8 @@ spec:
                     }
                     steps {
                         script {
-                            buildNext(true)
+                            // buildNext('windows')
+                            sh "echo skipped"
                         }
                     }
                     post {
@@ -118,7 +123,7 @@ spec:
     }
 }
 
-def buildNext(boolean runTests) {
+def buildNext(String os) {
     int MAX_RETRY = 3
 
     checkout scm
@@ -159,9 +164,16 @@ def buildNext(boolean runTests) {
     sshagent(['projects-storage.eclipse.org-bot-ssh']) {
         sh "yarn electron package:preview"
     }
-    if (runTests) {
+
+    if (os == 'mac') {
+        sh 'whoami && yarn electron test'
+    } else if (os == 'windows') {
         wrap([$class: 'Xvnc', takeScreenshot: false, useXauthority: true]) {
             sh 'yarn electron test'
         }
-    } 
+    } else if (os == 'linux') {
+        sh 'mkdir applications/electron/dist/linux-unpacked/home && export HOME=$(pwd)/applications/electron/dist/linux-unpacked/home && echo $HOME && export XVFB_WHD=${XVFB_WHD:-1280x1024x16} && Xvfb :99 -ac -screen 0 $XVFB_WHD -nolisten tcp -nolisten unix & export DISPLAY=:99 && yarn electron test'
+    } else {
+        error("Error during testing: unsupported OS: ${os}")
+    }
 }

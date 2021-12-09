@@ -3,7 +3,7 @@ const path = require("path");
 const { remote } = require("webdriverio");
 const { expect } = require("chai");
 
-const THEIA_LOAD_TIMEOUT = 15000; // 15 seconds
+const THEIA_LOAD_TIMEOUT = 30000; // 5 minutes
 
 function getBinaryPath() {
   const distFolder = path.join(__dirname, "..", "dist");
@@ -47,6 +47,9 @@ function macSafeKeyCombo(keys) {
 };
 
 describe("Theia App", function() {
+
+  this.retries(5)
+
   // In mocha, 'this' is a common context between sibling beforeEach, afterEach, it, etc methods within the same describe.
   // Each describe has its own context.
   beforeEach(async function() {
@@ -65,7 +68,7 @@ describe("Theia App", function() {
           // Path to built and packaged theia
           binary: binary,
           // Hand in workspace to load as runtime parameter
-          args: [path.join(__dirname, "workspace")],
+          args: ["--no-sandbox", path.join(__dirname, "workspace")],
         },
       },
     });
@@ -74,6 +77,8 @@ describe("Theia App", function() {
 
     // mocha waits for returned promise to resolve
     // Theia is loaded once the app shell is present
+
+    await this.browser.saveScreenshot('error0.png');
     return appShell.waitForExist({
       timeout: THEIA_LOAD_TIMEOUT,
       timeoutMsg: "Theia took too long to load.",
@@ -95,11 +100,13 @@ describe("Theia App", function() {
   });
 
   it("Correct window title", async function() {
+    await this.browser.saveScreenshot('error1.png');
     const windowTitle = await this.browser.getTitle();
     expect(windowTitle).to.include("workspace — Theia");
   });
 
   it("Builtin extensions", async function() {
+    await this.browser.saveScreenshot('error2.png');
     // Wait a bit to make sure key handlers are registered.
     await new Promise((r) => setTimeout(r, 2000));
 
