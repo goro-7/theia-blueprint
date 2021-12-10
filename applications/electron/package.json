@@ -103,7 +103,7 @@
     "bundle": "theia build",
     "clean": "theia clean && rimraf node_modules",
     "clean:dist": "rimraf dist",
-    "deploy": "yarn clean:dist && electron-builder -c.mac.identity=null --publish always",
+    "deploy": "yarn clean:dist && yarn rebuild && electron-builder -c.mac.identity=null --publish always",
     "package:preview": "yarn clean:dist && electron-builder -c.mac.identity=null --dir",
     "update:checksum": "ts-node scripts/update-checksum.ts",
     "update:next": "ts-node ../../scripts/update-theia-to-next.ts",
