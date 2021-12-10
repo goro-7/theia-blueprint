@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
 /** @type {import('webpack').Configuration['mode']} */
@@ -92,16 +91,6 @@ module.exports = {
         // it is safe to completely ignore them. Webpack will throw an error if they are required.
         new webpack.IgnorePlugin({
             checkResource: resource => ignoreResources.has(resource)
-        }),
-        new CopyPlugin({
-            patterns: [
-                {
-                    // Copy over ripgrep's binaries
-                    context: path.resolve(require.resolve('vscode-ripgrep/package.json'), '../bin'),
-                    from: '*',
-                    to: 'bin'
-                },
-            ]
         })
     ],
     optimization: {
