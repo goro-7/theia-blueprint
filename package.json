@@ -32,16 +32,16 @@
     "yargs": "^17.0.2"
   },
   "scripts": {
-    "prepare": "lerna run prepare",
+    "browser": "yarn --cwd applications/browser",
+    "build": "lerna run build",
+    "clean": "lerna run clean && rimraf node_modules",
+    "electron": "yarn --cwd applications/electron",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
-    "clean": "lerna run clean && rimraf node_modules",
-    "build": "lerna run build",
-    "watch": "lerna run --parallel watch",
+    "prepare": "lerna run prepare",
     "test": "lerna run test",
-    "browser": "yarn --cwd applications/browser",
-    "electron": "yarn --cwd applications/electron",
-    "update:next": "ts-node scripts/update-theia-to-next.ts && lerna run update:next"
+    "update:next": "ts-node scripts/update-theia-to-next.ts && lerna run update:next",
+    "watch": "lerna run --parallel watch"
   },
   "workspaces": [
     "applications/*",
